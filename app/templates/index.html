@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Display Webcam Stream</title>
+ 
+<style>
+#container {
+	margin: 0px auto;
+	width: 240px;
+	height: 180px;
+	border: 10px #333 solid;
+}
+#videoElement {
+	width: 240px;
+	height: 180px;
+	background-color: #666;
+}
+#container:before {
+    position: absolute;
+    content:"";
+    height: 150px;
+    width: 150px;
+    margin-left: 45px;
+	margin-top: 15px;
+    border: 2px #333 solid;
+}
+</style>
+<style>
+.video-responsive{
+    overflow:hidden;
+    padding-bottom:56.25%;
+    height:0;
+}
+.video-responsive iframe{
+    left:0;
+    top:0;
+    height:315;
+    width:420;
+}
+</style>
+</head>
+ 
+<body>
+<center>
+<form method = "POST" id = "myForm">
+<table>
+<Tr>
+<td><div id="container"><video autoplay id="videoElement"></video></div></td>
+<tr>
+</table>
+<input type="button" name="butajax2" id="butajax2" value="Scan And Play">
+<br>
+<canvas id="canvas" width="240" height="180" style="display:none"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script>
+var video = document.querySelector("#videoElement");
+var click_button3 = document.querySelector("#butajax2");	
+var canvas = document.querySelector("#canvas");
+var counter = 0;
+var checkcounter = 0;
+
+if (navigator.mediaDevices.getUserMedia) {
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function (stream) {
+      video.srcObject = stream;
+    })
+    .catch(function (err0r) {
+      console.log("Something went wrong!");
+    });
+}
+click_button3.addEventListener('click', function() {
+	
+	canvas.style.display="block";
+   	canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+	let image_data_url = canvas.toDataURL('image/jpeg');
+	canvas.style.display="none";
+	$.ajax({type:'POST',
+		url: '/api/checkanswer',
+		data:{
+		  todo:image_data_url
+		},
+		success: function(data) {
+			//alert(data);
+			//https://www.youtube.com/embed/Cw12PDfFXxc - A
+			//https://www.youtube.com/embed/0A-ZEDl4zGo - B
+			//document.getElementById("mypic").src="data:image/jpeg;base64,"+data;
+			if (data=="A")
+			{
+				document.getElementById("typlayer").src="https://www.youtube.com/embed/Cw12PDfFXxc" + "?autoplay=1";
+			}else if(data=="B")
+			{
+				document.getElementById("typlayer").src="https://www.youtube.com/embed/0A-ZEDl4zGo" + "?autoplay=1";
+			}
+		}
+	       });
+
+});
+</script>
+<input type="hidden" name="txt64" id="txt64">
+<!--<img src="data:image/jpeg;base64,{{ user_image }}" alt="User Image" width="240" id="mypic">-->
+
+</form>
+<center>
+<div id="tab_yt" style="display:block">
+    	<div class="video-responsive">
+            <iframe id="typlayer" width="420" height="315" src="https://www.youtube.com/embed/Cw12PDfFXxc" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+        </div>
+</div>
+</center>
+</center>	
+</body>
+</html>
